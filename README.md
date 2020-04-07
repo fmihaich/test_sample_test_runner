@@ -16,21 +16,48 @@ docker rmi test_sample_test_runner:local
 
 ## Test runner behavior
 
-Test runner needs to be part of a compose file. For example: https://github.com/fmihaich/test_sample_server/blob/master/system_tests.yml
+Test runner needs to be part of a compose file. For example:
 
-Test runner will run all tests in 'tests/system/*/folder' using behave.
+```yaml
+version: '3.3'
+services:
+  test_sample_server:
+    image: test_sample_server:local
+    ports:
+    - "8080:8080"
+    command: script/run
+  test_sample_test_runner:
+    image: test_sample_test_runner:local
+    environment:
+      - SERVER_HOST=test_sample_server
+      - SERVER_PORT=8080
+    tty: true
+    volumes:
+    - ./tests:/test_sample_source/tests
+```
 
-Therefore, the repository where test runner will run need to define the system tests in ``tests/system`` folder.
+(Source: https://github.com/fmihaich/test_sample_server/blob/master/system_tests.yml)
+
+Test runner will:
+
+- Install requirements located in ``tests/requirements.txt``
+- Run all tests in ``tests/system/*/folder`` using behave.
+
+Therefore, the repository where test runner will run need to:
+- Specify system tests requirements in ``tests/requirements.txt``
+- Define the system tests in ``tests/system`` folder.
+
+As an example, take a look to this repo: https://github.com/fmihaich/test_sample_server
 
 ## Running test
 
-Supposed the compose file is named ``system_tests.yml``, then execute the following command to run test environment:
+Suppose the compose file is named ``system_tests.yml``, then execute the following command to run test environment:
 
 ```bash
 docker-compose -f system_tests.yml up &
 ```
 
-Then, to run system test execute:
+After that, to run system test execute:
 
 ```bash
 docker-compose -f system_tests.yml exec test_sample_test_runner script/run
