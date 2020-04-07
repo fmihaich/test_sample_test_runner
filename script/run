@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#Install test requirements
+pip3 install -r tests/requirements.txt
+
+# Run system tests
+find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
+behave -s tests/system/*/features --no-logcapture "$@"
+
+if [[ $? = 0 ]]; then
+    echo "** SYSTEM TESTS PASSED **"
+else
+    echo "** SYSTEM TESTS FAILED **"
+    exit 1
+fi
